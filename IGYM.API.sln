@@ -1,0 +1,65 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36127.28 d17.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IGYM.API", "IGYM.API\IGYM.API.csproj", "{EC1A947C-3E51-49F0-9174-D893F6717034}"
+	ProjectSection(ProjectDependencies) = postProject
+		{789B4FAB-606D-4EED-884D-469BB9BC1DA5} = {789B4FAB-606D-4EED-884D-469BB9BC1DA5}
+		{D2E976D0-FA36-474D-A7B7-356E8935AE34} = {D2E976D0-FA36-474D-A7B7-356E8935AE34}
+		{EACBD279-92D8-4BC6-976E-F9AF43CD43D3} = {EACBD279-92D8-4BC6-976E-F9AF43CD43D3}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IGYM.Model", "IGYM.Model\IGYM.Model.csproj", "{D2E976D0-FA36-474D-A7B7-356E8935AE34}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IGYM.Interface", "IGYM.Interface\IGYM.Interface.csproj", "{EACBD279-92D8-4BC6-976E-F9AF43CD43D3}"
+	ProjectSection(ProjectDependencies) = postProject
+		{D2E976D0-FA36-474D-A7B7-356E8935AE34} = {D2E976D0-FA36-474D-A7B7-356E8935AE34}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IGYM.Data", "IGYM.Data\IGYM.Data.csproj", "{107B90E1-EACF-4BD0-9378-5F110ABD2D4B}"
+	ProjectSection(ProjectDependencies) = postProject
+		{D2E976D0-FA36-474D-A7B7-356E8935AE34} = {D2E976D0-FA36-474D-A7B7-356E8935AE34}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IGYM.Service", "IGYM.Service\IGYM.Service.csproj", "{789B4FAB-606D-4EED-884D-469BB9BC1DA5}"
+	ProjectSection(ProjectDependencies) = postProject
+		{107B90E1-EACF-4BD0-9378-5F110ABD2D4B} = {107B90E1-EACF-4BD0-9378-5F110ABD2D4B}
+		{D2E976D0-FA36-474D-A7B7-356E8935AE34} = {D2E976D0-FA36-474D-A7B7-356E8935AE34}
+		{EACBD279-92D8-4BC6-976E-F9AF43CD43D3} = {EACBD279-92D8-4BC6-976E-F9AF43CD43D3}
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{EC1A947C-3E51-49F0-9174-D893F6717034}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EC1A947C-3E51-49F0-9174-D893F6717034}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EC1A947C-3E51-49F0-9174-D893F6717034}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EC1A947C-3E51-49F0-9174-D893F6717034}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D2E976D0-FA36-474D-A7B7-356E8935AE34}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D2E976D0-FA36-474D-A7B7-356E8935AE34}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D2E976D0-FA36-474D-A7B7-356E8935AE34}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D2E976D0-FA36-474D-A7B7-356E8935AE34}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EACBD279-92D8-4BC6-976E-F9AF43CD43D3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EACBD279-92D8-4BC6-976E-F9AF43CD43D3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EACBD279-92D8-4BC6-976E-F9AF43CD43D3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EACBD279-92D8-4BC6-976E-F9AF43CD43D3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{107B90E1-EACF-4BD0-9378-5F110ABD2D4B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{107B90E1-EACF-4BD0-9378-5F110ABD2D4B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{107B90E1-EACF-4BD0-9378-5F110ABD2D4B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{107B90E1-EACF-4BD0-9378-5F110ABD2D4B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{789B4FAB-606D-4EED-884D-469BB9BC1DA5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{789B4FAB-606D-4EED-884D-469BB9BC1DA5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{789B4FAB-606D-4EED-884D-469BB9BC1DA5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{789B4FAB-606D-4EED-884D-469BB9BC1DA5}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {16625460-A676-4537-AAEA-252FC6653EE1}
+	EndGlobalSection
+EndGlobal
