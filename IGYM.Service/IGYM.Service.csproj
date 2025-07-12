@@ -34,4 +34,8 @@
     <ProjectReference Include="..\IGYM.Model\IGYM.Model.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="SheduleModule\" />
+  </ItemGroup>
+
 </Project>
