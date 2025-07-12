@@ -1,4 +1,5 @@
-﻿using IGYM.Model.UserModule.Entities;
+﻿using IGYM.Model.SheduleModule.Entities;
+using IGYM.Model.UserModule.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using System;
@@ -34,6 +35,11 @@ namespace IGYM.Model
 		public virtual DbSet<Message> Message { get; set; }
 		public virtual DbSet<SentNotification> SentNotification { get; set; }
 		public virtual DbSet<UserHistory> UserHistory { get; set; }
+		public DbSet<Workout> Workouts { get; set; }
+		public DbSet<Trainer> Trainers { get; set; }
+		public DbSet<MemberShedule> MemberSchedules { get; set; }
+		public DbSet<SheduleWorkout> ScheduleWorkouts { get; set; }
+		public DbSet<TrainerAvailability> TrainerAvailabilities { get; set; }
 
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
@@ -164,6 +170,84 @@ namespace IGYM.Model
 					  .OnDelete(DeleteBehavior.NoAction);
 
 
+			});
+			modelBuilder.Entity<Workout>(entity =>
+			{
+				entity.HasKey(e => e.WorkoutId);
+				entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
+				entity.Property(e => e.Category).IsRequired().HasMaxLength(50);
+				entity.Property(e => e.DurationMinutes).IsRequired();
+				entity.Property(e => e.Difficulty).HasMaxLength(20);
+			});
+			modelBuilder.Entity<Trainer>(entity =>
+			{
+				entity.HasKey(e => e.TrainerId);
+				entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
+				entity.Property(e => e.Specialization).HasMaxLength(100);
+				entity.Property(e => e.HourlyRate).HasColumnType("decimal(10,2)");
+				entity.Property(e => e.AvailableDays).HasMaxLength(100);
+				entity.Property(e => e.WorkingHours).HasMaxLength(100);
+				entity.Property(e => e.Active).HasDefaultValue(true);
+			});
+			modelBuilder.Entity<MemberShedule>(entity =>
+			{
+				entity.HasKey(e => e.ScheduleId);
+				entity.Property(e => e.MemberId).IsRequired();
+				entity.Property(e => e.Date).IsRequired();
+				entity.Property(e => e.StartTime).IsRequired();
+				entity.Property(e => e.EndTime).IsRequired();
+				entity.Property(e => e.Status).HasMaxLength(20).HasDefaultValue("planned");
+
+				entity.HasOne<User>()
+					  .WithMany()
+					  .HasForeignKey(e => e.MemberId)
+					  .OnDelete(DeleteBehavior.Cascade);
+				entity.HasOne<Trainer>()
+					  .WithMany()
+					  .HasForeignKey(e => e.TrainerId)
+					  .OnDelete(DeleteBehavior.Cascade);
+			});
+			modelBuilder.Entity<SheduleWorkout>(entity =>
+			{
+				entity.HasKey(e => e.ScheduledWorkoutId);
+				entity.Property(e => e.ScheduleId).IsRequired();
+				entity.Property(e => e.WorkoutId).IsRequired();
+				entity.Property(e => e.SequenceOrder).IsRequired();
+				entity.Property(e => e.Completed).HasDefaultValue(false);
+
+				entity.HasOne<MemberShedule>()
+					  .WithMany()
+					  .HasForeignKey(e => e.ScheduleId)
+					  .OnDelete(DeleteBehavior.Cascade);
+
+				entity.HasOne<Workout>()
+					  .WithMany()
+					  .HasForeignKey(e => e.WorkoutId)
+					  .OnDelete(DeleteBehavior.Restrict);
+
+				entity.HasOne<Trainer>()
+					  .WithMany()
+					  .HasForeignKey(e => e.TrainerId)
+					  .OnDelete(DeleteBehavior.SetNull);
+			});
+			modelBuilder.Entity<TrainerAvailability>(entity =>
+			{
+				entity.HasKey(e => e.AvailabilityId);
+				entity.Property(e => e.TrainerId).IsRequired();
+				entity.Property(e => e.Date).IsRequired();
+				entity.Property(e => e.StartTime).IsRequired();
+				entity.Property(e => e.EndTime).IsRequired();
+				entity.Property(e => e.IsAvailable).HasDefaultValue(true);
+
+				entity.HasOne<Trainer>()
+					  .WithMany()
+					  .HasForeignKey(e => e.TrainerId)
+					  .OnDelete(DeleteBehavior.Cascade);
+
+				entity.HasOne<User>()
+					  .WithMany()
+					  .HasForeignKey(e => e.BookedBy)
+					  .OnDelete(DeleteBehavior.SetNull);
 			});
 		}
 	}

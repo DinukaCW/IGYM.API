@@ -17,8 +17,4 @@
     <PackageReference Include="Microsoft.Extensions.Options" Version="9.0.7" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="SheduleModule\DTOs\" />
-  </ItemGroup>
-
 </Project>
