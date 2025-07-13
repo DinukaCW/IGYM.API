@@ -1,4 +1,5 @@
-﻿using System;
+﻿using IGYM.Model.UserModule.Entities;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -13,6 +14,7 @@ namespace IGYM.Model.SheduleModule.Entities
 		[Key]
 		[DatabaseGenerated(DatabaseGeneratedOption.Identity)]
 		public int TrainerId { get; set; }
+		public int UserId { get; set; } // Foreign key to User table
 
 		[Required]
 		[StringLength(100)]
@@ -31,6 +33,8 @@ namespace IGYM.Model.SheduleModule.Entities
 		public string WorkingHours { get; set; } // '09:00-17:00' or '14:00-22:00'
 
 		public bool Active { get; set; } = true;
-	 
+
+		public virtual User User { get; set; }
+
 	}
 }

@@ -1,10 +1,11 @@
 using IGYM.Data;
 using IGYM.Interface;
 using IGYM.Interface.Data;
+using IGYM.Interface.GymModule;
 using IGYM.Interface.UserModule;
 using IGYM.Model;
 using IGYM.Service;
-using IGYM.Service.SheduleModule;
+using IGYM.Service.GymModule;
 using IGYM.Service.UserModule;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -36,7 +37,7 @@ builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services.AddScoped<IMfaService, MfaService>();
 builder.Services.AddScoped<ILoginData, LoginData>();
 builder.Services.AddScoped<IUserHistoryService, UserHistoryService>();
-builder.Services.AddScoped<IGYM.Interface.SheduleModule.IGymSheduleService, GymScheduleService>();
+builder.Services.AddScoped<IGymSheduleService, GymScheduleService>();
 /*builder.Configuration
 	.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
 	.AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: true)

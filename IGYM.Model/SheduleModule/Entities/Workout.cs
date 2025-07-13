@@ -31,5 +31,10 @@ namespace IGYM.Model.SheduleModule.Entities
 		public string Difficulty { get; set; }
 
 		public string EquipmentNeeded { get; set; }
+
+		public byte[]? Image { get; set; } // Optional image for the workout
+
+		// Navigation properties
+		public virtual ICollection<SheduleWorkout> ScheduledWorkouts { get; set; }
 	}
 }

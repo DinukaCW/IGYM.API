@@ -1,4 +1,5 @@
-﻿using System;
+﻿using IGYM.Model.UserModule.Entities;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -13,24 +14,33 @@ namespace IGYM.Model.SheduleModule.Entities
 		[Key]
 		[DatabaseGenerated(DatabaseGeneratedOption.Identity)]
 		public int ScheduleId { get; set; }
-
 		public int MemberId { get; set; }
 		[Required]
-
 		public int TrainerId { get; set; }
-
-		public DateTime Date { get; set; }
-
+		public int MembersheduleRequestId { get; set; }
+		public string PlanName { get; set; }
+		public DateTime CreateDate { get; set; } = DateTime.UtcNow;
 		[Required]
-		public TimeSpan StartTime { get; set; }
-
+		public DateTime StartTime { get; set; }
 		[Required]
-		public TimeSpan EndTime { get; set; }
-
+		public DateTime EndTime { get; set; }
 		[StringLength(20)]
-		public string Status { get; set; } = "planned"; // planned, completed, canceled
-
+		public PlanStatus Status { get; set; } = PlanStatus.Active;
 		public string Notes { get; set; }
 
+		// Navigation properties
+		public virtual MemberSheduleRequest ScheduleRequest { get; set; }
+		public virtual User Member { get; set; }
+		public virtual Trainer Trainer { get; set; }
+		public virtual ICollection<SheduleWorkout> ScheduledWorkouts { get; set; }
+
+	}
+
+	public enum PlanStatus
+	{
+		Active,
+		Completed,
+		Paused,
+		Cancelled
 	}
 }

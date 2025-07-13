@@ -35,11 +35,11 @@ namespace IGYM.Model
 		public virtual DbSet<Message> Message { get; set; }
 		public virtual DbSet<SentNotification> SentNotification { get; set; }
 		public virtual DbSet<UserHistory> UserHistory { get; set; }
-		public DbSet<Workout> Workouts { get; set; }
-		public DbSet<Trainer> Trainers { get; set; }
-		public DbSet<MemberShedule> MemberSchedules { get; set; }
-		public DbSet<SheduleWorkout> ScheduleWorkouts { get; set; }
-		public DbSet<TrainerAvailability> TrainerAvailabilities { get; set; }
+		public DbSet<MemberShedule> MemberShedule { get; set; }
+		public DbSet<MemberSheduleRequest> MemberSheduleRequest { get; set; }
+		public DbSet<SheduleWorkout> SheduleWorkout { get; set; }
+		public DbSet<Trainer> Trainer { get; set; }
+		public DbSet<Workout> Workout { get; set; }
 
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
@@ -171,6 +171,104 @@ namespace IGYM.Model
 
 
 			});
+			// MemberShedule configuration
+			modelBuilder.Entity<MemberShedule>(entity =>
+			{
+				entity.HasKey(e => e.ScheduleId);
+				entity.Property(e => e.MemberId).IsRequired();
+				entity.Property(e => e.TrainerId).IsRequired();
+				entity.Property(e => e.PlanName).IsRequired();
+				entity.Property(e => e.CreateDate).IsRequired();
+				entity.Property(e => e.StartTime).IsRequired();
+				entity.Property(e => e.EndTime).IsRequired();
+				entity.Property(e => e.Status).HasMaxLength(20).IsRequired();
+
+				entity.HasOne(e => e.Member)
+					  .WithMany()
+					  .HasForeignKey(e => e.MemberId)
+					  .OnDelete(DeleteBehavior.NoAction);
+
+				entity.HasOne(e => e.Trainer)
+					  .WithMany()
+					  .HasForeignKey(e => e.TrainerId)
+					  .OnDelete(DeleteBehavior.NoAction);
+
+				entity.HasOne(e => e.ScheduleRequest)
+					  .WithMany(e => e.MemberSchedules)
+					  .HasForeignKey(e => e.MembersheduleRequestId)
+					  .OnDelete(DeleteBehavior.NoAction);
+			});
+
+			// MemberSheduleRequest configuration
+			modelBuilder.Entity<MemberSheduleRequest>(entity =>
+			{
+				entity.HasKey(e => e.MemberSheduleRequestId);
+				entity.Property(e => e.MemberId).IsRequired();
+				entity.Property(e => e.TrainerId).IsRequired();
+				entity.Property(e => e.Age).IsRequired();
+				entity.Property(e => e.Gender).IsRequired();
+				entity.Property(e => e.Weight).IsRequired();
+				entity.Property(e => e.StartDate).IsRequired();
+				entity.Property(e => e.EndDate).IsRequired();
+				entity.Property(e => e.Goal).IsRequired();
+				entity.Property(e => e.FitnessLevel).IsRequired();
+				entity.Property(e => e.TrainingType).IsRequired();
+				entity.Property(e => e.RequestDate).IsRequired();
+				entity.Property(e => e.RequestStatus).IsRequired().HasDefaultValue("pending");
+
+				entity.HasOne(e => e.Member)
+					  .WithMany()
+					  .HasForeignKey(e => e.MemberId)
+					  .OnDelete(DeleteBehavior.NoAction);
+
+				entity.HasOne(e => e.Trainer)
+					  .WithMany()
+					  .HasForeignKey(e => e.TrainerId)
+					  .OnDelete(DeleteBehavior.NoAction);
+			});
+
+			// SheduleWorkout configuration
+			modelBuilder.Entity<SheduleWorkout>(entity =>
+			{
+				entity.HasKey(e => e.ScheduledWorkoutId);
+				entity.Property(e => e.ScheduleId).IsRequired();
+				entity.Property(e => e.DayNumber).IsRequired();
+				entity.Property(e => e.WorkoutId).IsRequired();
+				entity.Property(e => e.SequenceOrder).IsRequired();
+				entity.Property(e => e.DurationMinutes).IsRequired();
+				entity.Property(e => e.RestMinutes).IsRequired();
+				entity.Property(e => e.Completed).HasDefaultValue(false);
+
+				entity.HasOne(e => e.MemberSchedule)
+					  .WithMany(e => e.ScheduledWorkouts)
+					  .HasForeignKey(e => e.ScheduleId)
+					  .OnDelete(DeleteBehavior.Cascade);
+
+				entity.HasOne(e => e.Workout)
+					  .WithMany(e => e.ScheduledWorkouts)
+					  .HasForeignKey(e => e.WorkoutId)
+					  .OnDelete(DeleteBehavior.NoAction);
+			});
+
+			// Trainer configuration
+			modelBuilder.Entity<Trainer>(entity =>
+			{
+				entity.HasKey(e => e.TrainerId);
+				entity.Property(e => e.UserId).IsRequired();
+				entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
+				entity.Property(e => e.Specialization).HasMaxLength(100);
+				entity.Property(e => e.HourlyRate).HasColumnType("decimal(10,2)");
+				entity.Property(e => e.AvailableDays).HasMaxLength(100);
+				entity.Property(e => e.WorkingHours).HasMaxLength(100);
+				entity.Property(e => e.Active).HasDefaultValue(true);
+
+				entity.HasOne<User>()
+					  .WithMany()
+					  .HasForeignKey(e => e.UserId) // Fixed typo: UserRoleId
+					  .OnDelete(DeleteBehavior.NoAction);
+			});
+
+			// Workout configuration
 			modelBuilder.Entity<Workout>(entity =>
 			{
 				entity.HasKey(e => e.WorkoutId);
@@ -179,76 +277,17 @@ namespace IGYM.Model
 				entity.Property(e => e.DurationMinutes).IsRequired();
 				entity.Property(e => e.Difficulty).HasMaxLength(20);
 			});
-			modelBuilder.Entity<Trainer>(entity =>
-			{
-				entity.HasKey(e => e.TrainerId);
-				entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
-				entity.Property(e => e.Specialization).HasMaxLength(100);
-				entity.Property(e => e.HourlyRate).HasColumnType("decimal(10,2)");
-				entity.Property(e => e.AvailableDays).HasMaxLength(100);
-				entity.Property(e => e.WorkingHours).HasMaxLength(100);
-				entity.Property(e => e.Active).HasDefaultValue(true);
-			});
-			modelBuilder.Entity<MemberShedule>(entity =>
-			{
-				entity.HasKey(e => e.ScheduleId);
-				entity.Property(e => e.MemberId).IsRequired();
-				entity.Property(e => e.Date).IsRequired();
-				entity.Property(e => e.StartTime).IsRequired();
-				entity.Property(e => e.EndTime).IsRequired();
-				entity.Property(e => e.Status).HasMaxLength(20).HasDefaultValue("planned");
 
-				entity.HasOne<User>()
-					  .WithMany()
-					  .HasForeignKey(e => e.MemberId)
-					  .OnDelete(DeleteBehavior.Cascade);
-				entity.HasOne<Trainer>()
-					  .WithMany()
-					  .HasForeignKey(e => e.TrainerId)
-					  .OnDelete(DeleteBehavior.Cascade);
-			});
-			modelBuilder.Entity<SheduleWorkout>(entity =>
-			{
-				entity.HasKey(e => e.ScheduledWorkoutId);
-				entity.Property(e => e.ScheduleId).IsRequired();
-				entity.Property(e => e.WorkoutId).IsRequired();
-				entity.Property(e => e.SequenceOrder).IsRequired();
-				entity.Property(e => e.Completed).HasDefaultValue(false);
+			// Configure enum conversions
+			modelBuilder.Entity<MemberShedule>()
+				.Property(e => e.Status)
+				.HasConversion<string>();
 
-				entity.HasOne<MemberShedule>()
-					  .WithMany()
-					  .HasForeignKey(e => e.ScheduleId)
-					  .OnDelete(DeleteBehavior.Cascade);
+			// You can also configure the RequestStatus enum if you want to store it as string
+			modelBuilder.Entity<MemberSheduleRequest>()
+				.Property(e => e.RequestStatus)
+				.HasConversion<string>();
 
-				entity.HasOne<Workout>()
-					  .WithMany()
-					  .HasForeignKey(e => e.WorkoutId)
-					  .OnDelete(DeleteBehavior.Restrict);
-
-				entity.HasOne<Trainer>()
-					  .WithMany()
-					  .HasForeignKey(e => e.TrainerId)
-					  .OnDelete(DeleteBehavior.SetNull);
-			});
-			modelBuilder.Entity<TrainerAvailability>(entity =>
-			{
-				entity.HasKey(e => e.AvailabilityId);
-				entity.Property(e => e.TrainerId).IsRequired();
-				entity.Property(e => e.Date).IsRequired();
-				entity.Property(e => e.StartTime).IsRequired();
-				entity.Property(e => e.EndTime).IsRequired();
-				entity.Property(e => e.IsAvailable).HasDefaultValue(true);
-
-				entity.HasOne<Trainer>()
-					  .WithMany()
-					  .HasForeignKey(e => e.TrainerId)
-					  .OnDelete(DeleteBehavior.Cascade);
-
-				entity.HasOne<User>()
-					  .WithMany()
-					  .HasForeignKey(e => e.BookedBy)
-					  .OnDelete(DeleteBehavior.SetNull);
-			});
 		}
 	}
 }
