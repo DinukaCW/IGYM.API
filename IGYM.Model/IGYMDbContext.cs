@@ -1,4 +1,5 @@
-﻿using IGYM.Model.SheduleModule.Entities;
+﻿using IGYM.Model.NutritionModule.Entities;
+using IGYM.Model.SheduleModule.Entities;
 using IGYM.Model.UserModule.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -40,7 +41,11 @@ namespace IGYM.Model
 		public DbSet<SheduleWorkout> SheduleWorkout { get; set; }
 		public DbSet<Trainer> Trainer { get; set; }
 		public DbSet<Workout> Workout { get; set; }
-
+		public DbSet<NutritionPlanRequest> NutritionPlanRequest { get; set; }
+		public DbSet<NutritionPlan> NutritionPlan { get; set; }
+		public DbSet<MealPlan> MealPlan { get; set; }
+		public DbSet<MealItem> MealItem { get; set; }
+		public DbSet<FoodItem> FoodItem { get; set; }
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
 			modelBuilder.Entity<UserRole>(entity =>
@@ -254,6 +259,7 @@ namespace IGYM.Model
 			modelBuilder.Entity<Trainer>(entity =>
 			{
 				entity.HasKey(e => e.TrainerId);
+
 				entity.Property(e => e.UserId).IsRequired();
 				entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
 				entity.Property(e => e.Specialization).HasMaxLength(100);
@@ -262,11 +268,13 @@ namespace IGYM.Model
 				entity.Property(e => e.WorkingHours).HasMaxLength(100);
 				entity.Property(e => e.Active).HasDefaultValue(true);
 
-				entity.HasOne<User>()
-					  .WithMany()
-					  .HasForeignKey(e => e.UserId) // Fixed typo: UserRoleId
-					  .OnDelete(DeleteBehavior.NoAction);
+				// ✅ Correct relationship mapping using navigation property
+				entity.HasOne(e => e.User) // specify the navigation property in Trainer
+					  .WithMany()          // no collection in User (or .WithMany(u => u.Trainers) if there is)
+					  .HasForeignKey(e => e.UserId)
+					  .OnDelete(DeleteBehavior.NoAction); // or .Cascade or .Restrict depending on behavior
 			});
+
 
 			// Workout configuration
 			modelBuilder.Entity<Workout>(entity =>
@@ -278,14 +286,108 @@ namespace IGYM.Model
 				entity.Property(e => e.Difficulty).HasMaxLength(20);
 			});
 
+			// Workout configuration (existing)
+			modelBuilder.Entity<Workout>(entity =>
+			{
+				entity.HasKey(e => e.WorkoutId);
+				entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
+				entity.Property(e => e.Category).IsRequired().HasMaxLength(50);
+				entity.Property(e => e.DurationMinutes).IsRequired();
+				entity.Property(e => e.Difficulty).HasMaxLength(20);
+			});
+
+			// Nutrition Plan Request configuration
+			modelBuilder.Entity<NutritionPlanRequest>(entity =>
+			{
+				entity.HasKey(e => e.Id);
+				entity.Property(e => e.Goal).IsRequired().HasMaxLength(100);
+				entity.Property(e => e.Weight).IsRequired();
+				entity.Property(e => e.Height).IsRequired();
+				entity.Property(e => e.DietPreference).IsRequired().HasMaxLength(50);
+				entity.Property(e => e.RequestDate).IsRequired();
+
+				// Relationships
+				entity.HasOne(e => e.Member)
+					  .WithMany()
+					  .HasForeignKey(e => e.MemberId)
+					  .OnDelete(DeleteBehavior.Restrict);
+
+				entity.HasOne(e => e.Trainer)
+					  .WithMany()
+					  .HasForeignKey(e => e.TrainerId)
+					  .OnDelete(DeleteBehavior.Restrict);
+			});
+
+			// Nutrition Plan configuration
+			modelBuilder.Entity<NutritionPlan>(entity =>
+			{
+				entity.HasKey(e => e.Id);
+				entity.Property(e => e.CreatedDate).IsRequired();
+
+				// Relationship
+				entity.HasOne(e => e.Request)
+					  .WithOne(e => e.NutritionPlan)
+					  .HasForeignKey<NutritionPlan>(e => e.RequestId)
+					  .OnDelete(DeleteBehavior.Cascade);
+			});
+
+			// Meal Plan configuration
+			modelBuilder.Entity<MealPlan>(entity =>
+			{
+				entity.HasKey(e => e.Id);
+
+				// Relationship
+				entity.HasOne(e => e.NutritionPlan)
+					  .WithMany(e => e.MealPlans)
+					  .HasForeignKey(e => e.NutritionPlanId)
+					  .OnDelete(DeleteBehavior.Cascade);
+			});
+
+			// Meal Item configuration
+			modelBuilder.Entity<MealItem>(entity =>
+			{
+				entity.HasKey(e => e.Id);
+				entity.Property(e => e.Quantity).IsRequired();
+
+				// Relationships
+				entity.HasOne(e => e.MealPlan)
+					  .WithMany(e => e.MealItems)
+					  .HasForeignKey(e => e.MealPlanId)
+					  .OnDelete(DeleteBehavior.Cascade);
+
+				entity.HasOne(e => e.FoodItem)
+					  .WithMany()
+					  .HasForeignKey(e => e.FoodItemId)
+					  .OnDelete(DeleteBehavior.Restrict);
+			});
+
+			// Food Item configuration
+			modelBuilder.Entity<FoodItem>(entity =>
+			{
+				entity.HasKey(e => e.Id);
+				entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
+				entity.Property(e => e.Calories).IsRequired();
+				entity.Property(e => e.Protein).IsRequired();
+				entity.Property(e => e.Carbs).IsRequired();
+				entity.Property(e => e.Fats).IsRequired();
+				entity.Property(e => e.Category).HasMaxLength(50);
+			});
+
 			// Configure enum conversions
 			modelBuilder.Entity<MemberShedule>()
 				.Property(e => e.Status)
 				.HasConversion<string>();
 
-			// You can also configure the RequestStatus enum if you want to store it as string
 			modelBuilder.Entity<MemberSheduleRequest>()
 				.Property(e => e.RequestStatus)
+				.HasConversion<string>();
+
+			modelBuilder.Entity<NutritionPlanRequest>()
+				.Property(e => e.Status)
+				.HasConversion<string>();
+
+			modelBuilder.Entity<MealPlan>()
+				.Property(e => e.MealType)
 				.HasConversion<string>();
 
 		}

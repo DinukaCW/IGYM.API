@@ -1,6 +1,8 @@
 ﻿using IGYM.Interface;
 using IGYM.Interface.GymModule;
 using IGYM.Interface.UserModule;
+using IGYM.Model.NutritionModule.DTOs;
+using IGYM.Model.NutritionModule.Entities;
 using IGYM.Model.SheduleModule.DTOs;
 using IGYM.Model.SheduleModule.Entities;
 using IGYM.Model.UserModule.DTOs;
@@ -19,11 +21,13 @@ namespace IGYM.API.Controllers
 	{
 		private readonly IConfiguration _configuration; // Configuration for application settings
 		private readonly IGymSheduleService _gymSheduleService; // Service for managing gym schedules
+		private readonly IGymNutritionService _gymNutritionService; // Service for managing gym nutrition (not used in this controller but could be injected for future use)
 
-		public GymController(IConfiguration configuration, IGymSheduleService gymSheduleService)
+		public GymController(IConfiguration configuration, IGymSheduleService gymSheduleService, IGymNutritionService gymNutritionService)
 		{
 			_configuration = configuration;
 			_gymSheduleService = gymSheduleService;
+			_gymNutritionService = gymNutritionService;
 		}
 
 
@@ -235,5 +239,99 @@ namespace IGYM.API.Controllers
 			}
 		}
 
+		[HttpPost("requests")]
+		public async Task<IActionResult> CreateRequest([FromBody] CreateNutritionPlanRequestDto requestDto)
+		{
+			try
+			{
+				if (!ModelState.IsValid)
+				{
+					return BadRequest(ModelState);
+				}
+
+				var request = await _gymNutritionService.CreateNutritionPlanRequestAsync(requestDto);
+				return Ok(request);
+			}
+			catch (Exception ex)
+			{
+				return StatusCode(500, "An error occurred while creating the request");
+			}
+		}
+
+		[HttpGet("requests/pending/{trainerId}")]
+		public async Task<IActionResult> GetPendingRequests(int trainerId)
+		{
+			var requests = await _gymNutritionService.GetPendingNutritionPlanRequestsAsync(trainerId);
+			return Ok(requests);
+		}
+
+		[HttpPost("plans")]
+		public async Task<IActionResult> CreatePlan([FromBody] CreateNutritionPlanDto planDto)
+		{
+			try
+			{
+				if (!ModelState.IsValid)
+				{
+					return BadRequest(ModelState);
+				}
+
+				var plan = await _gymNutritionService.CreateNutritionPlanAsync(planDto);
+				return CreatedAtAction(nameof(GetPlan), new { id = plan.Id }, plan);
+			}
+			catch (ArgumentException ex)
+			{
+				return BadRequest(ex.Message);
+			}
+			catch (Exception ex)
+			{
+				return StatusCode(500, "An error occurred while creating the plan");
+			}
+		}
+
+		[HttpGet("plans/{id}")]
+		public async Task<IActionResult> GetPlan(int id)
+		{
+			try
+			{
+				var plan = await _gymNutritionService.GetNutritionPlanAsync(id);
+				return Ok(plan);
+			}
+			catch (KeyNotFoundException)
+			{
+				return NotFound();
+			}
+			catch (Exception ex)
+			{
+				return StatusCode(500, "An error occurred while retrieving the plan");
+			}
+		}
+
+		[HttpGet("members/{memberId}/plans")]
+		public async Task<IActionResult> GetMemberPlans(int memberId)
+		{
+			var plans = await _gymNutritionService.GetMemberNutritionPlansAsync(memberId);
+			return Ok(plans);
+		}
+
+		[HttpPatch("requests/{requestId}/status")]		
+		public async Task<IActionResult> UpdateRequestStatus(int requestId, [FromBody] UpdateStatusDto statusDto)
+		{
+			try
+			{
+				var success = await _gymNutritionService.UpdateRequestStatusAsync(requestId, statusDto.Status);
+				return success ? Ok() : NotFound();
+			}
+			catch (Exception ex)
+			{
+				return StatusCode(500, "An error occurred while updating the request status");
+			}
+		}
 	}
+
+	public class UpdateStatusDto
+	{
+		public NutritionPlanRequestStatus Status { get; set; }
+	}
+
 }
+

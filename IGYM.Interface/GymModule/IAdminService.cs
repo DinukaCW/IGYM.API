@@ -13,5 +13,7 @@ namespace IGYM.Interface.GymModule
 		Task<(int TrainerId, int UserId)> AddTrainerAsync(AddTrainerDto trainerDto);
 		Task<ServiceResult> DeleteTrainerAsync(int trainerId);
 		Task<ServiceResult> DeleteWorkoutAsync(int workoutId);
+		Task<FoodItemDto> AddFoodItemAsync(CreateFoodItemDto foodItemDto);
+		Task<ServiceResult> DeleteFoodItemAsync(int foodItemId);
 	}
 }

@@ -3,6 +3,7 @@ using IGYM.Interface.Data;
 using IGYM.Interface.UserModule;
 using IGYM.Model;
 using IGYM.Model.AdminModule;
+using IGYM.Model.NutritionModule.Entities;
 using IGYM.Model.SheduleModule.Entities;
 using IGYM.Model.UserModule.Entities;
 using IGYM.Service.UserModule;
@@ -260,6 +261,150 @@ namespace IGYM.Service.Admin
 				await transaction.RollbackAsync();
 				_logger.LogError(ex, "Error deleting workout {WorkoutId}", workoutId);
 				throw new ApplicationException("An error occurred while deleting workout", ex);
+			}
+		}
+
+		public async Task<FoodItemDto> AddFoodItemAsync(CreateFoodItemDto foodItemDto)
+		{
+			using var transaction = await _context.Database.BeginTransactionAsync();
+
+			try
+			{
+				// Validate input
+				if (foodItemDto == null)
+				{
+					throw new ArgumentNullException(nameof(foodItemDto), "Food item data cannot be null");
+				}
+
+				// Validate nutritional values
+				if (foodItemDto.Calories < 0)
+				{
+					throw new ArgumentException("Calories cannot be negative", nameof(foodItemDto.Calories));
+				}
+
+				if (foodItemDto.Protein < 0)
+				{
+					throw new ArgumentException("Protein cannot be negative", nameof(foodItemDto.Protein));
+				}
+
+				if (foodItemDto.Carbs < 0)
+				{
+					throw new ArgumentException("Carbs cannot be negative", nameof(foodItemDto.Carbs));
+				}
+
+				if (foodItemDto.Fats < 0)
+				{
+					throw new ArgumentException("Fats cannot be negative", nameof(foodItemDto.Fats));
+				}
+
+				// Check for duplicate food item names
+				var existingItem = await _context.FoodItem
+					.FirstOrDefaultAsync(f => f.Name.ToLower() == foodItemDto.Name.ToLower());
+
+				if (existingItem != null)
+				{
+					throw new InvalidOperationException($"Food item with name '{foodItemDto.Name}' already exists");
+				}
+
+				// Create new food item
+				var foodItem = new FoodItem
+				{
+					Name = foodItemDto.Name,
+					Description = foodItemDto.Description,
+					Calories = foodItemDto.Calories,
+					Protein = foodItemDto.Protein,
+					Carbs = foodItemDto.Carbs,
+					Fats = foodItemDto.Fats,
+					Category = foodItemDto.Category,
+					IsVegetarian = foodItemDto.IsVegetarian,
+					IsVegan = foodItemDto.IsVegan,
+					IsGlutenFree = foodItemDto.IsGlutenFree
+				};
+
+				_context.FoodItem.Add(foodItem);
+				await _context.SaveChangesAsync();
+				await transaction.CommitAsync();
+
+				return new FoodItemDto
+				{
+					Id = foodItem.Id,
+					Name = foodItem.Name,
+					Description = foodItem.Description,
+					Calories = foodItem.Calories,
+					Protein = foodItem.Protein,
+					Carbs = foodItem.Carbs,
+					Fats = foodItem.Fats,
+					Category = foodItem.Category,
+					IsVegetarian = foodItem.IsVegetarian,
+					IsVegan = foodItem.IsVegan,
+					IsGlutenFree = foodItem.IsGlutenFree
+				};
+			}
+			catch (Exception ex)
+			{
+				await transaction.RollbackAsync();
+				_logger.LogError(ex, "Error adding new food item");
+				throw;
+			}
+		}
+
+		public async Task<ServiceResult> DeleteFoodItemAsync(int foodItemId)
+		{
+			using var transaction = await _context.Database.BeginTransactionAsync();
+
+			try
+			{
+				// 1. Find food item with related meal items
+				var foodItem = await _context.FoodItem
+					.Include(f => f.MealItems)
+						.ThenInclude(mi => mi.MealPlan)
+							.ThenInclude(mp => mp.NutritionPlan)
+								.ThenInclude(np => np.Request)
+					.FirstOrDefaultAsync(f => f.Id == foodItemId);
+
+				if (foodItem == null)
+				{
+					return new ServiceResult(false, "Food item not found");
+				}
+
+				// 2. Check if food item is used in any completed nutrition plans
+				var hasCompletedPlans = foodItem.MealItems.Any(mi =>
+					mi.MealPlan?.NutritionPlan?.Request?.Status == NutritionPlanRequestStatus.Completed);
+
+				if (hasCompletedPlans)
+				{
+					return new ServiceResult(false,
+						"Cannot delete food item that's part of completed nutrition plans");
+				}
+
+				// 3. Get all pending/active meal items (not part of completed plans)
+				var mealItemsToRemove = foodItem.MealItems
+					.Where(mi => mi.MealPlan?.NutritionPlan?.Request?.Status != NutritionPlanRequestStatus.Completed)
+					.ToList();
+
+				// 4. Remove the meal items
+				_context.MealItem.RemoveRange(mealItemsToRemove);
+
+				// 5. Only hard delete if not used in any plans
+				if (!foodItem.MealItems.Any(mi =>
+					mi.MealPlan?.NutritionPlan?.Request?.Status == NutritionPlanRequestStatus.Completed))
+				{
+					_context.FoodItem.Remove(foodItem);
+				}
+
+				await _context.SaveChangesAsync();
+				await transaction.CommitAsync();
+
+				return new ServiceResult(true,
+					foodItem.MealItems.Any()
+						? "Food item removed from pending/active plans but kept in completed plans"
+						: "Food item completely deleted");
+			}
+			catch (Exception ex)
+			{
+				await transaction.RollbackAsync();
+				_logger.LogError(ex, "Error deleting food item {FoodItemId}", foodItemId);
+				throw new ApplicationException("An error occurred while deleting food item", ex);
 			}
 		}
 		public record SeResult(bool Success, string Message);

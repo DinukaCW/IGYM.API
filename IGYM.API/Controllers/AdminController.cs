@@ -128,6 +128,35 @@ namespace IGYM.API.Controllers
 			return BadRequest(result);
 		}
 
+		[HttpPost("food-items")]
+		public async Task<IActionResult> AddFoodItem([FromBody] CreateFoodItemDto foodItemDto)
+		{
+			try
+			{
+				if (!ModelState.IsValid)
+				{
+					return ValidationProblem(ModelState);
+				}
+
+				var result = await _adminService.AddFoodItemAsync(foodItemDto);
+
+				return Ok (result);
+
+			}
+			
+			catch (Exception ex)
+			{
+				return StatusCode(500, new { message = "Internal server error", error = ex.Message });
+			}
+		}
+		[HttpDelete("foodItem")]
+		public async Task<IActionResult> DeleteFoodItem(int foodItemId)
+		{
+			var result = await _adminService.DeleteFoodItemAsync(foodItemId);
+			if (result.Success)
+				return Ok(result);
+			return BadRequest(result);
+		}
 		public record PasswordValidationResult(bool IsValid, string? ErrorMessage = null);
 
 

@@ -14,8 +14,10 @@ namespace IGYM.Model.SheduleModule.Entities
 		[Key]
 		[DatabaseGenerated(DatabaseGeneratedOption.Identity)]
 		public int TrainerId { get; set; }
-		public int UserId { get; set; } // Foreign key to User table
+		public int UserId { get; set; } // Foreign key to User table 
 
+		[ForeignKey(nameof(UserId))]
+		public virtual User User { get; set; }
 		[Required]
 		[StringLength(100)]
 		public string Name { get; set; }
@@ -34,7 +36,6 @@ namespace IGYM.Model.SheduleModule.Entities
 
 		public bool Active { get; set; } = true;
 
-		public virtual User User { get; set; }
 
 	}
 }

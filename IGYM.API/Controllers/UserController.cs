@@ -69,7 +69,7 @@ namespace IGYM.API.Controllers
 				}
 
 				// Return MFA requirements if needed
-				return Ok(new { Success = result.Success, Acctoken = result.AccessToken, Message = result.Message, UserId = result.UserId });
+				return Ok(new { Success = result.Success, Acctoken = result.AccessToken, Message = result.Message, UserId = result.UserId , UserRole = result.UserRole});
 			}
 			catch (Exception ex)
 			{

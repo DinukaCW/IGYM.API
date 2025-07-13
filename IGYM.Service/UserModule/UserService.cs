@@ -99,10 +99,11 @@ namespace IGYM.Service.UserModule
 
 				//Genereate Tokens
 				var Accesstoken = await _jwtTokenService.GenerateJwtToken(user);
+				string userRole = await _userData.GetUserRoleNameAsync(user.UserRoleId);
 				//var RefreshToken = await _jwtTokenService.GenerateRefreshToken(user);
 
 				_logger.LogInformation("Login successful without MFA for user: {UserId}.", user.UserID);
-				return new LoginResult { Success = true, AccessToken = Accesstoken,  Message = "Successfully Logged", UserId = user.UserID };
+				return new LoginResult { Success = true, AccessToken = Accesstoken,  Message = "Successfully Logged", UserId = user.UserID , UserRole = userRole};
 			}
 			catch (Exception ex)
 			{

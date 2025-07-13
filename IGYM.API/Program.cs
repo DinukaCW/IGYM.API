@@ -38,6 +38,7 @@ builder.Services.AddScoped<IMfaService, MfaService>();
 builder.Services.AddScoped<ILoginData, LoginData>();
 builder.Services.AddScoped<IUserHistoryService, UserHistoryService>();
 builder.Services.AddScoped<IGymSheduleService, GymScheduleService>();
+builder.Services.AddScoped<IGymNutritionService, GymNutritionService>();
 /*builder.Configuration
 	.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
 	.AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: true)

@@ -4,6 +4,7 @@ using IGYM.Model;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace IGYM.Model.Migrations
 {
     [DbContext(typeof(IGYMDbContext))]
-    partial class IGYMDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250713025725_addnewupdate")]
+    partial class addnewupdate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -41,183 +44,6 @@ namespace IGYM.Model.Migrations
                     b.HasKey("MessageId");
 
                     b.ToTable("Message");
-                });
-
-            modelBuilder.Entity("IGYM.Model.NutritionModule.Entities.FoodItem", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<float>("Calories")
-                        .HasColumnType("real");
-
-                    b.Property<float>("Carbs")
-                        .HasColumnType("real");
-
-                    b.Property<string>("Category")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<float>("Fats")
-                        .HasColumnType("real");
-
-                    b.Property<bool>("IsGlutenFree")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsVegan")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsVegetarian")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<float>("Protein")
-                        .HasColumnType("real");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("FoodItem");
-                });
-
-            modelBuilder.Entity("IGYM.Model.NutritionModule.Entities.MealItem", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("FoodItemId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("MealPlanId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("PreparationNotes")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<float>("Quantity")
-                        .HasColumnType("real");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("FoodItemId");
-
-                    b.HasIndex("MealPlanId");
-
-                    b.ToTable("MealItem");
-                });
-
-            modelBuilder.Entity("IGYM.Model.NutritionModule.Entities.MealPlan", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("MealType")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("NutritionPlanId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("NutritionPlanId");
-
-                    b.ToTable("MealPlan");
-                });
-
-            modelBuilder.Entity("IGYM.Model.NutritionModule.Entities.NutritionPlan", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("RequestId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("TrainerNotes")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("RequestId")
-                        .IsUnique();
-
-                    b.ToTable("NutritionPlan");
-                });
-
-            modelBuilder.Entity("IGYM.Model.NutritionModule.Entities.NutritionPlanRequest", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("AdditionalNotes")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("DietPreference")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("Goal")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<float>("Height")
-                        .HasColumnType("real");
-
-                    b.Property<string>("MedicalNotes")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("MemberId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("RequestDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("TrainerId")
-                        .HasColumnType("int");
-
-                    b.Property<float>("Weight")
-                        .HasColumnType("real");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("MemberId");
-
-                    b.HasIndex("TrainerId");
-
-                    b.ToTable("NutritionPlanRequest");
                 });
 
             modelBuilder.Entity("IGYM.Model.SheduleModule.Entities.MemberShedule", b =>
@@ -780,66 +606,6 @@ namespace IGYM.Model.Migrations
                     b.ToTable("UserToken");
                 });
 
-            modelBuilder.Entity("IGYM.Model.NutritionModule.Entities.MealItem", b =>
-                {
-                    b.HasOne("IGYM.Model.NutritionModule.Entities.FoodItem", "FoodItem")
-                        .WithMany()
-                        .HasForeignKey("FoodItemId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("IGYM.Model.NutritionModule.Entities.MealPlan", "MealPlan")
-                        .WithMany("MealItems")
-                        .HasForeignKey("MealPlanId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("FoodItem");
-
-                    b.Navigation("MealPlan");
-                });
-
-            modelBuilder.Entity("IGYM.Model.NutritionModule.Entities.MealPlan", b =>
-                {
-                    b.HasOne("IGYM.Model.NutritionModule.Entities.NutritionPlan", "NutritionPlan")
-                        .WithMany("MealPlans")
-                        .HasForeignKey("NutritionPlanId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("NutritionPlan");
-                });
-
-            modelBuilder.Entity("IGYM.Model.NutritionModule.Entities.NutritionPlan", b =>
-                {
-                    b.HasOne("IGYM.Model.NutritionModule.Entities.NutritionPlanRequest", "Request")
-                        .WithOne("NutritionPlan")
-                        .HasForeignKey("IGYM.Model.NutritionModule.Entities.NutritionPlan", "RequestId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Request");
-                });
-
-            modelBuilder.Entity("IGYM.Model.NutritionModule.Entities.NutritionPlanRequest", b =>
-                {
-                    b.HasOne("IGYM.Model.UserModule.Entities.User", "Member")
-                        .WithMany()
-                        .HasForeignKey("MemberId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("IGYM.Model.SheduleModule.Entities.Trainer", "Trainer")
-                        .WithMany()
-                        .HasForeignKey("TrainerId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Member");
-
-                    b.Navigation("Trainer");
-                });
-
             modelBuilder.Entity("IGYM.Model.SheduleModule.Entities.MemberShedule", b =>
                 {
                     b.HasOne("IGYM.Model.UserModule.Entities.User", "Member")
@@ -959,21 +725,6 @@ namespace IGYM.Model.Migrations
                         .HasForeignKey("UserID")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("IGYM.Model.NutritionModule.Entities.MealPlan", b =>
-                {
-                    b.Navigation("MealItems");
-                });
-
-            modelBuilder.Entity("IGYM.Model.NutritionModule.Entities.NutritionPlan", b =>
-                {
-                    b.Navigation("MealPlans");
-                });
-
-            modelBuilder.Entity("IGYM.Model.NutritionModule.Entities.NutritionPlanRequest", b =>
-                {
-                    b.Navigation("NutritionPlan");
                 });
 
             modelBuilder.Entity("IGYM.Model.SheduleModule.Entities.MemberShedule", b =>
